@@ -1,11 +1,9 @@
+import _ from 'lodash';
+import fs from 'fs';
+import http from 'http';
+import path from 'path';
+import qs from 'qs';
 import yaml from 'aws-yaml';
-
-const http = require('http');
-const path = require('path');
-
-const fs = require('fs').promises;
-const _ = require('lodash');
-const qs = require('qs');
 
 const moduleMap = (dirname: string, Resources: any) =>
   _.reduce(
@@ -72,58 +70,56 @@ const getBody = async (req: any) =>
     });
   });
 
-const createServer = async () => {
-  const yamlpath = 'template.yaml';
-  const buff = await fs.readFile(yamlpath, 'utf8');
+const serverFunc = (modules: any) => async (req: any, res: any) => {
+  const { method, url } = req;
+  const [path, _qs] = url.split('?');
+
+  const module = moduleFind(path, modules[method]);
+
+  if (!module) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+
+  let json;
+  try {
+    const reqbody: any = await getBody(req);
+    json = JSON.parse(reqbody.toString());
+  } catch (e) {
+    res.writeHead(400);
+    res.end();
+    return;
+  }
+
+  const { handler, params } = module;
+  const event = {
+    body: json,
+    path,
+    httpMethod: method,
+    isBase64Encoded: false,
+    queryStringParameters: qs.parse(_qs),
+    pathParameters: params,
+    headers: req.headers,
+  };
+  const context = {};
+
+  const { statusCode, body, headers } = await handler(event, context);
+  const defaultHeaders = { 'Content-Type': 'application/json' };
+  const h = Object.assign(defaultHeaders, headers);
+  res.writeHead(statusCode, h);
+  res.end(body);
+};
+
+async function createServer(yamlpath: string) {
+  const buff = await fs.promises.readFile(yamlpath, 'utf8');
   const { Resources } = yaml.load(buff);
 
-  const fullpath = path.resolve(yamlpath);
-  const dirname = path.dirname(fullpath);
+  const dirname = path.dirname(path.resolve(yamlpath));
 
   const modules = moduleMap(dirname, Resources);
 
-  const serverFunc = async (req: any, res: any) => {
-    const { method, url } = req;
-    const [path, _qs] = url.split('?');
-
-    const module = moduleFind(path, modules[method]);
-
-    if (!module) {
-      res.writeHead(404);
-      res.end();
-      return;
-    }
-
-    let json;
-    try {
-      const reqbody: any = await getBody(req);
-      json = JSON.parse(reqbody.toString());
-    } catch (e) {
-      res.writeHead(400);
-      res.end();
-      return;
-    }
-
-    const { handler, params } = module;
-    const event = {
-      body: json,
-      path,
-      httpMethod: method,
-      isBase64Encoded: false,
-      queryStringParameters: qs.parse(_qs),
-      pathParameters: params,
-      headers: req.headers,
-    };
-    const context = {};
-
-    const { statusCode, body, headers } = await handler(event, context);
-    const defaultHeaders = { 'Content-Type': 'application/json' };
-    const h = Object.assign(defaultHeaders, headers);
-    res.writeHead(statusCode, h);
-    res.end(body);
-  };
-
-  return http.createServer(serverFunc);
-};
+  return http.createServer(serverFunc(modules));
+}
 
 export default { createServer };
