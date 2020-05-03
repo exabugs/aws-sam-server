@@ -72,7 +72,7 @@ const getBody = async (req: any) =>
     });
   });
 
-const main = async () => {
+const createServer = async () => {
   const yamlpath = 'template.yaml';
   const buff = await fs.readFile(yamlpath, 'utf8');
   const { Resources } = yaml.load(buff);
@@ -125,3 +125,5 @@ const main = async () => {
 
   return http.createServer(serverFunc);
 };
+
+export default { createServer };
