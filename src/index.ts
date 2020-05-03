@@ -82,19 +82,11 @@ const serverFunc = (modules: any) => async (req: any, res: any) => {
     return;
   }
 
-  let json;
-  try {
-    const reqbody: any = await getBody(req);
-    json = JSON.parse(reqbody.toString());
-  } catch (e) {
-    res.writeHead(400);
-    res.end();
-    return;
-  }
+  const reqbody: any = await getBody(req);
 
   const { handler, params } = module;
   const event = {
-    body: json,
+    body: reqbody.toString(),
     path,
     httpMethod: method,
     isBase64Encoded: false,
