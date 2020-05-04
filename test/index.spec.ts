@@ -5,13 +5,13 @@ import axios from 'axios';
 import { promisify } from 'util';
 
 describe('template.yaml', () => {
-  const port = 3456;
+  const path = `${__dirname}/template.yaml`;
+  const port = process.env.PORT || 3456;
   const baseURL = `http://localhost:${port}`;
-  const fullpath = `${__dirname}/template.yaml`;
   let server: Server;
 
   beforeAll(async () => {
-    server = await createServer(fullpath);
+    server = await createServer(path);
     const listen = promisify(server.listen.bind(server));
     await listen(port);
   });
