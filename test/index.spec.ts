@@ -2,6 +2,7 @@ import { Server, createServer } from '../src/index';
 
 import _ from 'lodash';
 import axios from 'axios';
+import { promisify } from 'util';
 
 describe('template.yaml', () => {
   const port = 3456;
@@ -11,7 +12,8 @@ describe('template.yaml', () => {
 
   beforeAll(async () => {
     server = await createServer(fullpath);
-    await new Promise((resolve) => server.listen(port, resolve));
+    const listen = promisify(server.listen.bind(server));
+    await listen(port);
   });
 
   afterAll(() => {
