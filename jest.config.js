@@ -1,5 +1,6 @@
 module.exports = {
   verbose: true,
+  testEnvironment: 'node',
   moduleFileExtensions: ['ts', 'tsx', 'js'],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',

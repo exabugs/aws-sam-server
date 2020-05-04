@@ -1,0 +1,18 @@
+Resources:
+  TestFunction:
+    Properties:
+      CodeUri: modules
+      Handler: app.lambdaHandler
+      Events:
+        Test1:
+          Properties:
+            Path: /hello
+            Method: get
+        Test2:
+          Properties:
+            Path: /hello/{name}
+            Method: get
+        Test3:
+          Properties:
+            Path: /hello/{name}
+            Method: post

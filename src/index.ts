@@ -1,6 +1,7 @@
+import http, { IncomingMessage, Server, ServerResponse } from 'http';
+
 import _ from 'lodash';
 import fs from 'fs';
-import http from 'http';
 import path from 'path';
 import qs from 'qs';
 import yaml from 'aws-yaml';
@@ -58,7 +59,7 @@ const moduleFind = (path: string, modules: any) => {
   return hits[0];
 };
 
-const getBody = async (req: any) =>
+const getBody = async (req: IncomingMessage): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     const data: any[] = [];
     req.on('data', (chunk: any) => data.push(chunk));
@@ -70,8 +71,11 @@ const getBody = async (req: any) =>
     });
   });
 
-const serverFunc = (modules: any) => async (req: any, res: any) => {
-  const { method, url } = req;
+const serverFunc = (modules: any) => async (
+  req: IncomingMessage,
+  res: ServerResponse,
+) => {
+  const { method = '', url = '' } = req;
   const [path, _qs] = url.split('?');
 
   const module = moduleFind(path, modules[method]);
@@ -82,7 +86,7 @@ const serverFunc = (modules: any) => async (req: any, res: any) => {
     return;
   }
 
-  const reqbody: any = await getBody(req);
+  const reqbody = await getBody(req);
 
   const { handler, params } = module;
   const event = {
@@ -97,13 +101,12 @@ const serverFunc = (modules: any) => async (req: any, res: any) => {
   const context = {};
 
   const { statusCode, body, headers } = await handler(event, context);
-  const defaultHeaders = { 'Content-Type': 'application/json' };
-  const h = Object.assign(defaultHeaders, headers);
-  res.writeHead(statusCode, h);
+  res.setHeader('Content-Type', 'application/json');
+  res.writeHead(statusCode, headers);
   res.end(body);
 };
 
-async function createServer(yamlpath: string) {
+export async function createServer(yamlpath: string): Promise<http.Server> {
   const buff = await fs.promises.readFile(yamlpath, 'utf8');
   const { Resources } = yaml.load(buff);
 
@@ -114,4 +117,4 @@ async function createServer(yamlpath: string) {
   return http.createServer(serverFunc(modules));
 }
 
-export default { createServer };
+export { Server };
