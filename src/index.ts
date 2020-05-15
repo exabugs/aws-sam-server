@@ -67,6 +67,7 @@ const moduleFind = (path: string, modules: Module[]): TargetModule => {
   const paths1 = path.split('/');
   const hits = [];
   for (const module of modules) {
+    if (!module) continue;
     const pathParameters: ParamsMap = {};
     let hit = true;
     const paths0 = module.paths;
@@ -108,7 +109,7 @@ const serverFunc = (modules: ModuleMap) => async (
   if (!method || !url) return;
   const [path, _qs] = url.split('?');
 
-  const tgt = _.concat(modules[method] || [], modules['ANY'] || []);
+  const tgt = _.concat(modules[method], modules['ANY']);
   const module = moduleFind(path, tgt);
 
   if (!module) {
