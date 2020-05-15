@@ -47,5 +47,13 @@ describe('template.yaml', () => {
       expect(res.data.queryStringParameters).toEqual(params);
       expect(res.data.body).toEqual(JSON.stringify(data));
     });
+
+    test('ANY', async () => {
+      const data = { first: 'hello', last: 'world' };
+      const params = { q: 'keyword' };
+      const res = await client({ url: '/hello2', data, params });
+      expect(res.data.queryStringParameters).toEqual(params);
+      expect(res.data.body).toEqual(JSON.stringify(data));
+    });
   });
 });

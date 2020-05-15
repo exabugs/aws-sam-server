@@ -108,7 +108,8 @@ const serverFunc = (modules: ModuleMap) => async (
   if (!method || !url) return;
   const [path, _qs] = url.split('?');
 
-  const module = moduleFind(path, modules[method]);
+  const tgt = modules[method].concat(modules['ANY']);
+  const module = moduleFind(path, tgt);
 
   if (!module) {
     res.writeHead(404);

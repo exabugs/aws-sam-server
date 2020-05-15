@@ -16,3 +16,7 @@ Resources:
           Properties:
             Path: /hello/{name}
             Method: post
+        Test4:
+          Properties:
+            Path: /hello2/{name}
+            Method: any
