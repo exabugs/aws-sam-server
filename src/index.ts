@@ -108,7 +108,7 @@ const serverFunc = (modules: ModuleMap) => async (
   if (!method || !url) return;
   const [path, _qs] = url.split('?');
 
-  const tgt = _.concat(modules[method], modules['ANY']);
+  const tgt = _.compact(_.concat(modules[method], modules['ANY']));
   const module = moduleFind(path, tgt);
 
   if (!module) {
