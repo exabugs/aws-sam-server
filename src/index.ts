@@ -66,8 +66,7 @@ const moduleFind = (path: string, modules: Module[]): TargetModule => {
   if (!modules) return;
   const paths1 = path.split('/');
   const hits = [];
-  for (const module of modules) {
-    if (!module) continue;
+  for (const module of _.compact(modules)) {
     const pathParameters: ParamsMap = {};
     let hit = true;
     const paths0 = module.paths;
