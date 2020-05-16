@@ -1,5 +1,6 @@
 import { Server, createServer } from '../src/index';
 
+import AWS from 'aws-sdk';
 import _ from 'lodash';
 import axios from 'axios';
 import { promisify } from 'util';
@@ -11,7 +12,12 @@ describe('template.yaml', () => {
   let server: Server;
 
   beforeAll(async () => {
-    server = await createServer(path);
+    const getCredentials = promisify(
+      AWS.config.getCredentials.bind(AWS.config),
+    );
+    const config = await getCredentials();
+
+    server = await createServer(path, config);
     const listen = promisify(server.listen.bind(server));
     await listen(port);
   });
@@ -60,7 +66,7 @@ describe('template.yaml', () => {
   describe('PUT', () => {
     const client = axios.create({ baseURL, method: 'PUT' });
 
-    test.only('ANY', async () => {
+    test('ANY', async () => {
       const data = { first: 'hello', last: 'world' };
       const params = { q: 'keyword' };
       const res = await client({ url: '/hello2', data, params });

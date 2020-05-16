@@ -1,11 +1,12 @@
 {
   "name": "aws-sam-server",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "pretest": "tsc",
+    "prepublish": "yarn build",
     "test": "jest --coverage"
   },
   "keywords": [],
@@ -22,6 +23,7 @@
     "@types/js-yaml": "^3.12.3",
     "@types/lodash": "^4.14.150",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
+    "aws-sdk": "^2.678.0",
     "jest": "^25.5.4",
     "jest-junit": "^10.0.0",
     "ts-jest": "^25.4.0",

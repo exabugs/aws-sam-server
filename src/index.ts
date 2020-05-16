@@ -35,14 +35,17 @@ type ModuleMap = {
   [key: string]: Module[];
 };
 
-const moduleMap = (dirname: string, Resources: any): ModuleMap =>
+const moduleMap = (dirname: string, Resources: any, config?: any): ModuleMap =>
   _.reduce(
     Resources,
     (m: ModuleMap, v: any) => {
       const { Properties } = v;
       const { CodeUri, Handler, Events } = Properties;
-      const [module, name] = Handler.split('.');
-      const handler = require(path.join(dirname, CodeUri, module))[name];
+      const [_module, name] = Handler.split('.');
+      const module = require(path.join(dirname, CodeUri, _module));
+      const handler = module[name];
+      // 各モジュールで AWS.config.update を実施
+      config && module.config && module.config.update(config);
       return _.reduce(
         Events,
         (m: ModuleMap, v: any) => {
@@ -137,13 +140,16 @@ const serverFunc = (modules: ModuleMap) => async (
   res.end(body);
 };
 
-export async function createServer(yamlpath: string): Promise<http.Server> {
+export async function createServer(
+  yamlpath: string,
+  config?: any, // AWS config
+): Promise<http.Server> {
   const buff = await fs.promises.readFile(yamlpath, 'utf8');
   const { Resources } = yaml.load(buff);
 
   const dirname = path.dirname(path.resolve(yamlpath));
 
-  const modules = moduleMap(dirname, Resources);
+  const modules = moduleMap(dirname, Resources, config);
 
   return http.createServer(serverFunc(modules));
 }
