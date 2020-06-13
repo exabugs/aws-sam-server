@@ -39,7 +39,8 @@ const moduleMap = (dirname: string, Resources: any, config?: any): ModuleMap =>
   _.reduce(
     Resources,
     (m: ModuleMap, v: any) => {
-      const { Properties } = v;
+      const { Type, Properties } = v;
+      if (Type !== 'AWS::Serverless::Function') return m;
       const { CodeUri, Handler, Events } = Properties;
       const [_module, name] = Handler.split('.');
       const module = require(path.join(dirname, CodeUri, _module));
