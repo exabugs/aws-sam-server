@@ -52,6 +52,7 @@ const moduleMap = (dirname: string, Resources: any, config?: any): ModuleMap =>
         (m: ModuleMap, v: any) => {
           const { Properties } = v;
           const { Path, Method } = Properties;
+          if (!Path || !Method) return m;
           const method = Method.toUpperCase();
           m[method] = m[method] || [];
           m[method].push({

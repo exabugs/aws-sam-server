@@ -1,5 +1,6 @@
 Resources:
   TestFunction:
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: modules
       Handler: app.lambdaHandler
