@@ -20,7 +20,7 @@
     "qs": "^6.9.4"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.1",
+    "@types/jest": "25.2.3",
     "@types/js-yaml": "^3.12.3",
     "@types/lodash": "^4.14.150",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
